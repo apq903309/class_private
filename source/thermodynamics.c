@@ -405,6 +405,14 @@ int thermodynamics_init(
   class_test((pth->decay>0)&&((pba->has_cdm==_FALSE_)&&(pba->has_idm_dr==_FALSE_)),
              pth->error_message,
              "CDM decay effects require the presence of CDM or IDM!");
+  // Jui-Lin Kuo: add tests for KNS model
+  class_test((pth->KNS_flag!=0)&&(pth->KNS_flag!=1)&&(pth->KNS_flag!=2),
+             pth->error_message,
+             "Unknown flag for DM annihilation or decay using KNS table!");
+
+  class_test((pth->KNS_channel!=1)&&(pth->KNS_channel!=2)&&(pth->KNS_channel!=3)&&(pth->KNS_channel!=4),
+             pth->error_message,
+             "Unknown channel for DM annihilation or decay using KNS table!");
 
   /* tests in order to prevent segmentation fault in the following */
   class_test(_not4_ == 0.,
@@ -3026,6 +3034,15 @@ int thermodynamics_reionization_sample(
         /(pvecback[pba->index_bg_H]*_c_/_Mpc_over_m_*(1.+z)); /* energy injection */
 
     }
+    // Jui-Lin Kuo: Maybe we also need to add here
+    if (preco->KNS_flag == 1&&z>1.0){
+      //printf("Jui-Lin Kuo: z = %f, dTgdz = %f\n",z,Calc_dChidz_dTdz(preco->KNS_channel,0,preco->KNS_DMmass, z)*preco->KNS_DMsigmav/_KNS_sigmav0_);
+      dTdz+= -Calc_dChidz_dTdz(preco->KNS_channel,0,preco->KNS_DMmass, z)*preco->KNS_DMsigmav/_KNS_sigmav0_;
+    }
+    // DM decay
+    if (preco->KNS_flag == 2&&z>1.0){
+      dTdz+= -Calc_dChidz_dTdz(preco->KNS_channel,0,preco->KNS_DMmass, z)/preco->KNS_DMtau*_KNS_tau0_;
+    }
 
     /** - --> increment baryon temperature */
 
@@ -3536,6 +3553,12 @@ int thermodynamics_recombination_with_recfast(
   preco->decay = pth->decay;
   preco->annihilation_f_halo = pth->annihilation_f_halo;
   preco->annihilation_z_halo = pth->annihilation_z_halo;
+  // Jui-Lin Kuo: parameters for KNS table
+  preco->KNS_flag = pth->KNS_flag;
+  preco->KNS_channel = pth->KNS_channel;
+  preco->KNS_DMmass = pth->KNS_DMmass;
+  preco->KNS_DMsigmav = pth->KNS_DMsigmav;
+  preco->KNS_DMtau = pth->KNS_DMtau;
 
   /* quantities related to constants defined in thermodynamics.h */
   //n = preco->Nnow * pow((1.+z),3);
@@ -4032,7 +4055,15 @@ int thermodynamics_derivs_with_recfast(
 
     dy[0] = (x*x_H*n*Rdown - Rup*(1.-x_H)*exp(-preco->CL/Tmat)) * C / (Hz*(1.+z))       /* Peeble's equation with fudged factors */
       -energy_rate*chi_ion_H/n*(1./_L_H_ion_+(1.-C)/_L_H_alpha_)/(_h_P_*_c_*Hz*(1.+z)); /* energy injection (neglect fraction going to helium) */
-
+    // DM annihilation
+    if (preco->KNS_flag == 1&&z>1.0){
+      //printf("Jui-Lin Kuo: z = %f, dxedz = %.4e\n",z,Calc_dChidz_dTdz(preco->KNS_channel,1,preco->KNS_DMmass, z)*preco->KNS_DMsigmav/_KNS_sigmav0_);
+      dy[0] = dy[0] - Calc_dChidz_dTdz(preco->KNS_channel,1,preco->KNS_DMmass, z)*preco->KNS_DMsigmav/_KNS_sigmav0_;
+    }
+    // DM decay
+    if (preco->KNS_flag == 2&&z>1.0){
+      dy[0] = dy[0] - Calc_dChidz_dTdz(preco->KNS_channel,1,preco->KNS_DMmass, z)/preco->KNS_DMtau*_KNS_tau0_;
+    }
   }
 
   /************/
@@ -4089,6 +4120,15 @@ int thermodynamics_derivs_with_recfast(
 
     dy[2]= preco->CT * pow(Trad,4) * x / (1.+x+preco->fHe) * (Tmat-Trad) / (Hz*(1.+z)) + 2.*Tmat/(1.+z)
       -2./(3.*_k_B_)*energy_rate*chi_heat/n/(1.+preco->fHe+x)/(Hz*(1.+z)); /* energy injection */
+    // DM annihilation
+    if (preco->KNS_flag == 1&&z>1.0){
+      //printf("Jui-Lin Kuo: z = %f, dTgdz = %f\n",z,Calc_dChidz_dTdz(preco->KNS_channel,0,preco->KNS_DMmass, z)*preco->KNS_DMsigmav/_KNS_sigmav0_);
+      dy[2] = dy[2] - Calc_dChidz_dTdz(preco->KNS_channel,0,preco->KNS_DMmass, z)*preco->KNS_DMsigmav/_KNS_sigmav0_;
+    }
+    // DM decay
+    if (preco->KNS_flag == 2&&z>1.0){
+      dy[2] = dy[2] - Calc_dChidz_dTdz(preco->KNS_channel,0,preco->KNS_DMmass, z)/preco->KNS_DMtau*_KNS_tau0_;
+    }
   }
 
   return _SUCCESS_;

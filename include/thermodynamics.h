@@ -118,6 +118,12 @@ struct thermo
   double * reio_inter_xe; /**< discrete \f$ X_e(z)\f$ values */
 
   /** parameters for energy injection */
+  // Jui-Lin Kuo: add options for DM annihilation or decay using KNS table
+  int KNS_flag; /**< flag for using the KNS table for DM annihilation/decay, 0: off, 1: DM annihilation, 2: DM decay */
+  int KNS_channel; /**< flag for deciding the energy injection channel, 1: annihilation to b-bbar, 2: annihilation to e+e-, 3: decay to b-bar, 4: decay to e+e- */
+  double KNS_DMmass;  /**< parameter for DM mass in units of GeV */
+  double KNS_DMsigmav;  /**< parameter for DM annihilation thermal averaged cross section in units of cm^3/s */
+  double KNS_DMtau;  /**< parameter for DM lifetime in units of s */
 
   double annihilation; /**< parameter describing CDM annihilation (f <sigma*v> / m_cdm, see e.g. 0905.0003) */
 
@@ -339,6 +345,12 @@ struct recombination {
   double YHe; /**< defined as in RECFAST */
 
   /* parameters for energy injection */
+  // Jui-Lin Kuo: add options for DM annihilation or decay using KNS table
+  int KNS_flag; /**< flag for using the KNS table for DM annihilation/decay, 0: off, 1: DM annihilation, 2: DM decay */
+  int KNS_channel; /**< flag for deciding the energy injection channel, 1: annihilation to b-bbar, 2: annihilation to e+e-, 3: decay to b-bar, 4: decay to e+e- */
+  double KNS_DMmass;  /**< parameter for DM mass in units of GeV */
+  double KNS_DMsigmav;  /**< parameter for DM annihilation thermal averaged cross section in units of cm^3/s */
+  double KNS_DMtau;  /**< parameter for DM lifetime in units of s */
 
   double annihilation; /**< parameter describing CDM annihilation (f <sigma*v> / m_cdm, see e.g. 0905.0003) */
 
@@ -628,6 +640,19 @@ extern "C" {
                           double after,
                           double width,
                           double * result);
+  // Jui-Lin Kuo: declare function in loadtable.c
+  void LoadKNS(int ch );
+
+  double two_pts_interpolation(int use_log,
+                               double x0_,
+                               double x1_,
+                               double y0_,
+                               double y1_,
+                               double xin_ );
+  double Calc_dChidz_dTdz(int ch,
+                          int T_or_Chi,
+                          double mx,
+                          double z);
 
 #ifdef __cplusplus
 }
@@ -716,5 +741,8 @@ extern "C" {
 #define _Z_REC_MIN_ 500.
 
 //@}
+// Jui-Lin Kuo: define benchmark value of sigmav and tau for KNS table result
+#define _KNS_sigmav0_ 1e-26    /**< in units of cm^3/s */
+#define _KNS_tau0_ 1e26   /**< in units of s */
 
 #endif
