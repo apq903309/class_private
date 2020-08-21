@@ -1585,35 +1585,35 @@ int input_read_parameters(
 
   // Jui-Lin Kuo: read in the flags and parameters we add
   class_read_int("KNS_flag",pth->KNS_flag);
-  printf("For DM annihilation or decay using KNS table\n");
+  //printf("For DM annihilation or decay using KNS table\n");
   if (pth->KNS_flag == 0){
     printf(" -> DM annihilation or decay mode: off\n");
   }
   // DM annihilation
   if (pth->KNS_flag == 1){
-    printf(" -> DM annihilation or decay mode: DM annihilation\n");
+    //printf(" -> DM annihilation or decay mode: DM annihilation\n");
     class_read_int("KNS_channel",pth->KNS_channel);
     class_read_double("KNS_DMmass",pth->KNS_DMmass);
     class_read_double("KNS_DMsigmav",pth->KNS_DMsigmav);
     if (pth->KNS_channel != 1&&pth->KNS_channel != 2){
       printf(" -> Not an annihilation channel. Please check.\n");
     }
-    printf(" -> DM annihilation channel: %d\n",pth->KNS_channel);
-    printf(" -> DM mass in GeV: %f\n",pth->KNS_DMmass);
-    printf(" -> DM annihilation xsec in cm^3/s: %.1e\n",pth->KNS_DMsigmav);
+  //  printf(" -> DM annihilation channel: %d\n",pth->KNS_channel);
+  //  printf(" -> DM mass in GeV: %f\n",pth->KNS_DMmass);
+  //  printf(" -> DM annihilation xsec in cm^3/s: %.1e\n",pth->KNS_DMsigmav);
   }
   // DM decay
   if (pth->KNS_flag == 2){
-    printf(" -> DM annihilation or decay mode: DM decay\n");
+   // printf(" -> DM annihilation or decay mode: DM decay\n");
     class_read_int("KNS_channel",pth->KNS_channel);
     class_read_double("KNS_DMmass",pth->KNS_DMmass);
     class_read_double("KNS_DMtau",pth->KNS_DMtau);
     if (pth->KNS_channel != 3&&pth->KNS_channel != 4){
       printf(" -> Not an decay channel. Please check.\n");
     }
-    printf(" -> DM decay channel: %d\n",pth->KNS_channel);
-    printf(" -> DM mass in GeV: %f\n",pth->KNS_DMmass);
-    printf(" -> DM lifetime in s: %.1e\n",pth->KNS_DMtau);
+   // printf(" -> DM decay channel: %d\n",pth->KNS_channel);
+   // printf(" -> DM mass in GeV: %f\n",pth->KNS_DMmass);
+   // printf(" -> DM lifetime in s: %.1e\n",pth->KNS_DMtau);
   }
 
   class_call(parser_read_string(pfc,
